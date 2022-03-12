@@ -1,6 +1,7 @@
 import copy
 import datetime as dt
 from pathlib import Path
+from pprint import pprint
 from typing import Dict, List, Tuple
 
 import click
@@ -65,12 +66,19 @@ def insert_time(time_type: str):
     print(data)
 
 
+@click.command()
+def show_file():
+    present_data = retrieve_file()
+    pprint(present_data)
+
+
 @click.group()
 def group():
     pass
 
 
 group.add_command(insert_time)
+group.add_command(show_file)
 
 if __name__ == "__main__":
     # print(retrieve_file())
