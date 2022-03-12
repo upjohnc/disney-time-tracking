@@ -1,0 +1,59 @@
+[tool.poetry]
+name = "disney_tracking_time"
+version = "0.1.0"
+description = ""
+authors = ["Chad Upjohn <upjohnc@gmail.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+click = "^8.0.4"
+PyYAML = "^6.0"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.isort]
+src_paths = ["src","tests"]
+multi_line_output=3
+include_trailing_comma="True"
+force_grid_wrap=0
+use_parentheses="True"
+line_length=120
+skip=".vscode, .tox, .git, node_modules"
+default_section="THIRDPARTY"
+sections="FUTURE,STDLIB,THIRDPARTY,FIRSTPARTY,LOCALFOLDER"
+
+[tool.pytest.ini_options]
+addopts = "--strict-markers -v" # strict markers to ensure that the marker names aren't mispelled
+testpaths = "tests"
+markers = [
+    "unit_test"
+]
+filterwarnings = [
+    "ignore:Using or importing the ABCs",
+    "ignore:the imp module is deprecated in favour of importlib",
+]
+env = [
+    "LOG_THRESHOLD = INFO",
+    "MODE = local"
+]
+
+[tool.black]
+line-length = 120
+exclude = '''
+/(
+  # Directories
+    \.eggs
+  | \.git
+  | \.vscode
+  | \.tox
+  | \.venv
+  | \.ropeproject
+  | build
+  | venv
+  | .*egg-info
+)/
+'''
