@@ -1,6 +1,7 @@
+import copy
 import datetime as dt
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict, List, Tuple
 
 import click
 from yaml import Loader, dump, load
@@ -29,9 +30,15 @@ def save_data_back_to_file(data: Dict) -> None:
         dump(data, f)
 
 
-def create_time_entry(time_type: str) -> List:
-    utc_time = dt.datetime.utcnow().strftime("%H:%M")
-    time_entry = [time_type, utc_time]
+def get_datetime_now() -> Tuple[str, str]:
+    datetime_now = dt.datetime.utcnow()
+    date_str = datetime_now.strftime("%Y-%m-%d")
+    utc_time = datetime_now.strftime("%H:%M")
+    return date_str, utc_time
+
+
+def create_time_entry(time_type: str, utc_time_str: str) -> List:
+    time_entry = [time_type, utc_time_str]
     return time_entry
 
 
@@ -43,17 +50,19 @@ def insert_time(time_type: str):
     if time_type not in options:
         raise Exception(f"Type needs to be in {options}")
 
-    present_data = retrieve_file()
-    data = present_data.copy()
+    date_str, utc_time_str = get_datetime_now()
 
-    time_entry = create_time_entry(time_type)
-    if "big" not in present_data.keys():
-        present_data["big"] = []
-    existing_time_entries = present_data["big"]
+    present_data = retrieve_file()
+    data = copy.deepcopy(present_data) if present_data is not None else {}
+
+    time_entry = create_time_entry(time_type, utc_time_str)
+    if date_str not in data.keys():
+        data[date_str] = []
+    existing_time_entries = data[date_str]
     existing_time_entries.append(time_entry)
     _ = save_data_back_to_file(data)
 
-    print(present_data)
+    print(data)
 
 
 @click.group()
