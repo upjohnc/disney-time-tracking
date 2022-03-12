@@ -6,3 +6,9 @@ add_time type:
 
 show:
     poetry run python src/tracking.py show-file
+
+calculate:
+    poetry run python src/tracking.py calculate-time
+
+check:
+    poetry run python src/tracking.py check-file
