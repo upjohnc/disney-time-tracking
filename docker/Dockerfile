@@ -10,6 +10,7 @@ FROM base AS application
 COPY ./src /app/src
 COPY ./poetry.lock /app/
 COPY ./pyproject.toml /app/
+COPY ./data/tracking.yml /app/data/
 
 WORKDIR /app
 

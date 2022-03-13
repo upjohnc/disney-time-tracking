@@ -8,3 +8,4 @@ services:
     entrypoint: ["poetry", "run", "python", "src/tracking.py"]
     volumes:
       - ../src:/app/src
+      - ../data/tracking.yml:/app/data/tracking.yml
