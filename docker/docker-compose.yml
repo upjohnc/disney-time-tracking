@@ -1,0 +1,10 @@
+version: '3'
+services:
+  tracker:
+    build:
+      context: ..
+      dockerfile: ./docker/Dockerfile
+      target: application
+    entrypoint: ["poetry", "run", "python", "src/tracking.py"]
+    volumes:
+      - ../src:/app/src
