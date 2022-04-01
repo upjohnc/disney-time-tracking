@@ -13,6 +13,9 @@ calculate:
 check:
     poetry run python src/tracking.py check-file
 
+edit-file:
+    nvim data/tracking.yml
+
 docker_build:
     docker compose -f ./docker/docker-compose.yml build tracker
 
