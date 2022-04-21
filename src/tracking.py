@@ -82,12 +82,14 @@ def convert_to_datetime(time_str: str) -> dt.datetime:
     return time_
 
 
-def time_difference(pair):
-    print(pair)
+def time_difference(pair, print_line=False):
+    if print_line:
+        print(pair)
     start_time = pair[0]
     stop_time = pair[1]
     time_in_hours = (convert_to_datetime(stop_time[1]) - convert_to_datetime(start_time[1])) / dt.timedelta(hours=1)
-    print(time_in_hours)
+    if print_line:
+        print(time_in_hours)
     return time_in_hours
 
 
@@ -116,6 +118,16 @@ def calculate_time():
         print(f"Hours for the day: {sum(paired_hours)}")
 
 
+@click.command()
+def calculate_time_detail():
+    present_data = retrieve_file()
+    for date_, times in present_data.items():
+        print(date_)
+        paired_time = pairwise(times)
+        paired_hours = [time_difference(pair, print_line=True) for pair in paired_time]
+        print(f"Hours for the day: {sum(paired_hours)}")
+
+
 @click.group()
 def group():
     pass
@@ -124,6 +136,7 @@ def group():
 group.add_command(insert_time)
 group.add_command(show_file)
 group.add_command(calculate_time)
+group.add_command(calculate_time_detail)
 group.add_command(check_file)
 
 if __name__ == "__main__":
