@@ -111,11 +111,18 @@ def check_file():
 @click.command()
 def calculate_time():
     present_data = retrieve_file()
+    day_hours = []
     for date_, times in present_data.items():
         print(date_)
         paired_time = pairwise(times)
         paired_hours = [time_difference(pair) for pair in paired_time]
-        print(f"Hours for the day: {sum(paired_hours)}")
+        hours_summed_for_day = sum(paired_hours)
+        day_hours.append(hours_summed_for_day)
+        print(f"Hours for the day: {hours_summed_for_day}")
+
+    week_hours = sum(day_hours)
+    print()
+    print(f"Hours for the week: {week_hours}")
 
 
 @click.command()
