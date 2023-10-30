@@ -21,3 +21,7 @@ docker_build:
 
 docker_run *args='':
     docker compose -f ./docker/docker-compose.yml run --rm tracker {{ args }}
+
+# Add a start or end time to time tracker
+docker_add *args='':
+    docker compose -f ./docker/docker-compose.yml run --rm tracker insert-time {{ args }}
