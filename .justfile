@@ -1,6 +1,9 @@
 default:
     just --list
 
+poetry-install:
+    poetry install --with dev --sync
+
 add_time type:
     poetry run python src/tracking.py insert-time {{type}}
 
