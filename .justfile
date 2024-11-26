@@ -1,6 +1,9 @@
 default:
     just --list
 
+pre-commit:
+    pre-commit install
+
 poetry-install:
     poetry install --with dev --sync
 
