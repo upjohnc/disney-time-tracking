@@ -7,6 +7,8 @@ node_modules/
 
 data/
 
+rust_code/target/
+
 # run deck ignore
 requirements.txt
 
