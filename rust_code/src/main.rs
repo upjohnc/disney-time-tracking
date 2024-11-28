@@ -1,10 +1,12 @@
+use chrono::prelude::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use serde_json::Result;
 use std::collections::HashMap;
+use std::fs::write;
 use std::fs::{read_to_string, File};
 use std::io::Result as BaseResult;
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 struct All {
     data: HashMap<String, DateEntry>,
 }
@@ -21,10 +23,11 @@ fn read_json() -> Result<All> {
 
     let mut p: All = serde_json::from_str(&data)?;
 
-    let new_entry = Entry("wham".to_string(), "zoom".to_string());
+    let new_entry = Entry("wham".to_string(), Utc::now().to_string());
     let new_date_entry = DateEntry(vec![new_entry]);
     p.data.insert("three".to_string(), new_date_entry);
 
+    println!("{:?}", p);
     Ok(p)
 }
 
@@ -36,10 +39,14 @@ fn write_json(the_data: &All) -> BaseResult<()> {
 }
 
 fn main() {
-    let p = read_json().expect("should save");
+    let p = read_json().expect("should read");
     let _ = write_json(&p);
 
-    println!("{:?}", p.data);
+    let utc: DateTime<Utc> = Utc::now();
+    println!("{}", utc);
+    let _ = write("what.txt", utc.to_string());
+    let x = "2024-11-28 00:40:27.648449 UTC".parse::<DateTime<Utc>>();
+    println!("{:?}", x);
 
     println!("Hello, world!");
 }
