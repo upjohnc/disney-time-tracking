@@ -1,54 +1,80 @@
+mod utils;
+mod try_me;
+
 use chrono::prelude::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use serde_json::Result;
-use std::collections::HashMap;
-use std::fs::write;
-use std::fs::{read_to_string, File};
-use std::io::Result as BaseResult;
-
-#[derive(Serialize, Deserialize, Debug)]
-struct All {
-    data: HashMap<String, DateEntry>,
-}
+use serde_json::Value;
+use std::fs::{read_to_string, write};
+use utils::BaseData;
+use utils::{read_json, write_json};
 
 #[derive(Deserialize, Serialize, Debug)]
-struct DateEntry(Vec<Entry>);
-
-#[derive(Deserialize, Serialize, Debug)]
-struct Entry(String, String);
+struct VecData(Vec<String>);
 
 #[allow(dead_code)]
-fn read_json() -> Result<All> {
-    let data = read_to_string("./data.json").expect("file bad");
-
-    let mut p: All = serde_json::from_str(&data)?;
-
-    let new_entry = Entry("wham".to_string(), Utc::now().to_string());
-    let new_date_entry = DateEntry(vec![new_entry]);
-    p.data.insert("three".to_string(), new_date_entry);
-
-    println!("{:?}", p);
-    Ok(p)
+fn read_array_struct() -> Result<VecData> {
+    let data = read_to_string("datetime_array.json").expect("file bad");
+    let v: VecData = serde_json::from_str(&data)?;
+    Ok(v)
 }
 
 #[allow(dead_code)]
-fn write_json(the_data: &All) -> BaseResult<()> {
-    let file = File::create("./new_data.json")?;
-    serde_json::to_writer_pretty(file, the_data)?;
-    Ok(())
+fn read_array() -> Result<Value> {
+    let data = read_to_string("datetime_array.json").expect("file bad");
+    let v: Value = serde_json::from_str(&data)?;
+    Ok(v)
+}
+
+#[allow(dead_code)]
+fn convert_array_datetime_struct(data: VecData) -> () {
+    for i in data.0 {
+        println!("{}", i);
+    }
+    ()
+}
+
+#[allow(dead_code)]
+fn convert_array_datetime(data: Value) -> Vec<DateTime<Utc>> {
+    let mut new_array = vec![];
+    if let Some(v) = data.as_array() {
+        for i in v {
+            let my_date = i.as_str().unwrap().parse::<DateTime<Utc>>();
+            new_array.push(my_date.unwrap());
+            println!("{:?}", my_date);
+        }
+    }
+    new_array
+}
+
+#[allow(dead_code)]
+fn loop_over(d: BaseData) {
+    for (i, j) in d.core_data() {
+        println!(" zoom {}, {:?}", i, j);
+    }
 }
 
 fn main() {
+    // let array = read_array_struct();
+    // let array = convert_array_datetime_struct(array.unwrap());
+    // let array = read_array();
+    // let array = convert_array_datetime(array.unwrap());
+
+    let data = read_json();
+    loop_over(data.unwrap());
+    println!("Hello, world!");
+}
+
+#[allow(dead_code)]
+fn old_code() {
     let p = read_json().expect("should read");
     let _ = write_json(&p);
 
     let utc: DateTime<Utc> = Utc::now();
     println!("{}", utc);
-    let _ = write("what.txt", utc.to_string());
+    let _ = write("datetime.txt", utc.to_string());
     let x = "2024-11-28 00:40:27.648449 UTC".parse::<DateTime<Utc>>();
     println!("{:?}", x);
-
-    println!("Hello, world!");
 }
 
 #[cfg(test)]
