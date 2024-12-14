@@ -1,11 +1,13 @@
-mod utils;
+mod try_convert;
 mod try_me;
+mod utils;
 
 use chrono::prelude::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use serde_json::Result;
 use serde_json::Value;
 use std::fs::{read_to_string, write};
+use try_convert::{some_deserialize, some_serialize};
 use utils::BaseData;
 use utils::{read_json, write_json};
 
@@ -60,9 +62,15 @@ fn main() {
     // let array = read_array();
     // let array = convert_array_datetime(array.unwrap());
 
-    let data = read_json();
-    loop_over(data.unwrap());
-    println!("Hello, world!");
+    // let data = read_json();
+    // loop_over(data.unwrap());
+    // println!("Hello, world!");
+    let data = read_to_string("./data.json").expect("file bad");
+    let p: BaseData = serde_json::from_str(&data).unwrap();
+    let result_1 = some_serialize(p);
+    println!("{:?}", result_1);
+    let result_2 = some_deserialize(result_1);
+    println!("{:?}", result_2);
 }
 
 #[allow(dead_code)]
