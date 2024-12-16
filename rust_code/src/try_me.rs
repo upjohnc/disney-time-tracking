@@ -37,6 +37,63 @@ fn full_thing() -> JustDigits {
     converted_data
 }
 
+#[allow(dead_code)]
+fn old_code() {
+    let p = read_json().expect("should read");
+    let _ = write_json(&p);
+
+    let utc: DateTime<Utc> = Utc::now();
+    println!("{}", utc);
+    let _ = write("datetime.txt", utc.to_string());
+    let x = "2024-11-28 00:40:27.648449 UTC".parse::<DateTime<Utc>>();
+    println!("{:?}", x);
+}
+
+#[derive(Deserialize, Serialize, Debug)]
+struct VecData(Vec<String>);
+
+#[allow(dead_code)]
+fn read_array_struct() -> Result<VecData> {
+    let data = read_to_string("datetime_array.json").expect("file bad");
+    let v: VecData = serde_json::from_str(&data)?;
+    Ok(v)
+}
+
+#[allow(dead_code)]
+fn read_array() -> Result<Value> {
+    let data = read_to_string("datetime_array.json").expect("file bad");
+    let v: Value = serde_json::from_str(&data)?;
+    Ok(v)
+}
+
+#[allow(dead_code)]
+fn convert_array_datetime_struct(data: VecData) -> () {
+    for i in data.0 {
+        println!("{}", i);
+    }
+    ()
+}
+
+#[allow(dead_code)]
+fn convert_array_datetime(data: Value) -> Vec<DateTime<Utc>> {
+    let mut new_array = vec![];
+    if let Some(v) = data.as_array() {
+        for i in v {
+            let my_date = i.as_str().unwrap().parse::<DateTime<Utc>>();
+            new_array.push(my_date.unwrap());
+            println!("{:?}", my_date);
+        }
+    }
+    new_array
+}
+
+#[allow(dead_code)]
+fn loop_over(d: BaseData) {
+    for (i, j) in d.core_data() {
+        println!(" zoom {}, {:?}", i, j);
+    }
+}
+
 #[cfg(test)]
 mod tests {
 
