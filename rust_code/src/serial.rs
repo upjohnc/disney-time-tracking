@@ -4,14 +4,17 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 #[derive(Debug, PartialEq)]
-pub struct SerData(HashMap<String, RealDate>);
+pub struct SerData(HashMap<String, Vec<RealEntry>>);
+// pub struct SerData(HashMap<String, RealDate>);
 
 impl SerData {
-    pub fn core_data(self) -> HashMap<String, RealDate> {
+    // pub fn core_data(self) -> HashMap<String, RealDate> {
+    pub fn core_data(self) -> HashMap<String, Vec<RealEntry>> {
         self.0
     }
 
-    pub fn new(a: HashMap<String, RealDate>) -> Self {
+    // pub fn new(a: HashMap<String, RealDate>) -> Self {
+    pub fn new(a: HashMap<String, Vec<RealEntry>>) -> Self {
         Self(a)
     }
 }
@@ -49,10 +52,11 @@ pub fn some_serialize(input: BaseData) -> SerData {
     let source_data = input.core_data();
     for (k, v) in source_data.into_iter() {
         let mut real_date = vec![];
-        for e in v.0 {
+        for e in v {
             real_date.push(e.go());
         }
-        ser_data.insert(k, RealDate::new(real_date));
+        // ser_data.insert(k, RealDate::new(real_date));
+        ser_data.insert(k, real_date);
     }
     SerData::new(ser_data)
 }
@@ -62,22 +66,24 @@ pub fn some_deserialize(input: SerData) -> BaseData {
     let source_data = input.core_data();
     for (k, v) in source_data.into_iter() {
         let mut date_data = vec![];
-        for e in v.core_data() {
+        // for e in v.core_data() {
+        for e in v {
             date_data.push(e.go());
         }
-        base_data.insert(k, DateEntry::new(date_data));
+        base_data.insert(k, date_data);
     }
     BaseData::new(base_data)
 }
 
-#[derive(Serialize, Deserialize, Debug, PartialEq)]
-pub struct BaseData(HashMap<String, DateEntry>);
+#[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
+pub struct BaseData(HashMap<String, Vec<Entry>>);
+// pub struct BaseData(HashMap<String, DateEntry>);
 
 impl BaseData {
-    pub fn new(a: HashMap<String, DateEntry>) -> Self {
+    pub fn new(a: HashMap<String, Vec<Entry>>) -> Self {
         Self(a)
     }
-    pub fn core_data(self) -> HashMap<String, DateEntry> {
+    pub fn core_data(self) -> HashMap<String, Vec<Entry>> {
         self.0
     }
 }
@@ -95,7 +101,7 @@ impl DateEntry {
     }
 }
 
-#[derive(Deserialize, Serialize, Debug, PartialEq)]
+#[derive(Deserialize, Serialize, Debug, PartialEq, Clone)]
 pub struct Entry(pub String, pub String);
 
 impl Entry {
@@ -128,7 +134,7 @@ mod tests {
         let data = read_to_string("./data.json").expect("file bad");
         let base_data: BaseData = serde_json::from_str(&data).unwrap();
         let binding = base_data.core_data();
-        let entry_one = &binding.get("one").unwrap().0[0];
+        let entry_one = &binding.get("one").unwrap()[0];
 
         assert_eq!(entry_one.0, "wow".to_string());
     }

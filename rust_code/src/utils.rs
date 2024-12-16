@@ -8,14 +8,14 @@ use std::io::Result as BaseResult;
 pub fn read_json() -> Result<serial::BaseData> {
     let data = read_to_string("./data.json").expect("file bad");
 
-    let mut p: serial::BaseData = serde_json::from_str(&data)?;
+    let p: serial::BaseData = serde_json::from_str(&data)?;
 
     let new_entry = serial::Entry("wham".to_string(), Utc::now().to_string());
-    let new_date_entry = serial::DateEntry(vec![new_entry]);
-    // p.0.insert("three".to_string(), new_date_entry);
+    let new_date_entry = vec![new_entry];
+    let mut bash_hash_map = p.core_data();
+    let _ = bash_hash_map.insert("three".to_string(), new_date_entry);
 
-    println!("{:?}", p);
-    Ok(p)
+    Ok(serial::BaseData::new(bash_hash_map))
 }
 
 #[allow(dead_code)]
@@ -28,7 +28,7 @@ pub fn write_json(the_data: &serial::BaseData) -> BaseResult<()> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::serial::{BaseData, Entry, RealEntry};
+    use crate::serial::RealEntry;
     use chrono::DateTime;
     use std::fs::read_to_string;
 
@@ -47,7 +47,7 @@ mod tests {
         let data = read_to_string("./data.json").expect("file bad");
         let base_data: serial::BaseData = serde_json::from_str(&data).unwrap();
         let binding = base_data.core_data();
-        let entry_one = &binding.get("one").unwrap().0[0];
+        let entry_one = &binding.get("one").unwrap()[0];
 
         assert_eq!(entry_one.0, "wow".to_string());
     }
