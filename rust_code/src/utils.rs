@@ -47,7 +47,7 @@ mod tests {
         let data = read_to_string("./data.json").expect("file bad");
         let base_data: serial::BaseData = serde_json::from_str(&data).unwrap();
         let binding = base_data.core_data();
-        let entry_one = &binding.get("one").unwrap()[0];
+        let entry_one = &binding.get("2024-12-16").unwrap()[0];
 
         assert_eq!(entry_one.0, "wow".to_string());
     }
