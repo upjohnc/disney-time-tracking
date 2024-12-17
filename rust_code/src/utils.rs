@@ -10,7 +10,7 @@ pub fn read_json() -> Result<serial::BaseData> {
 
     let p: serial::BaseData = serde_json::from_str(&data)?;
 
-    let new_entry = serial::Entry("wham".to_string(), Utc::now().to_string());
+    let new_entry = serial::Entry::new("wham".to_string(), Utc::now().to_string());
     let new_date_entry = vec![new_entry];
     let mut bash_hash_map = p.core_data();
     let _ = bash_hash_map.insert("three".to_string(), new_date_entry);
@@ -49,7 +49,7 @@ mod tests {
         let binding = base_data.core_data();
         let entry_one = &binding.get("2024-12-16").unwrap()[0];
 
-        assert_eq!(entry_one.0, "wow".to_string());
+        assert_eq!(entry_one.first_element(), "wow".to_string());
     }
 
     #[test]

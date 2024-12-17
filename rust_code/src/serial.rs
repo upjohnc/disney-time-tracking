@@ -5,15 +5,12 @@ use std::collections::HashMap;
 
 #[derive(Debug, PartialEq)]
 pub struct SerData(HashMap<String, Vec<RealEntry>>);
-// pub struct SerData(HashMap<String, RealDate>);
 
 impl SerData {
-    // pub fn core_data(self) -> HashMap<String, RealDate> {
     pub fn core_data(self) -> HashMap<String, Vec<RealEntry>> {
         self.0
     }
 
-    // pub fn new(a: HashMap<String, RealDate>) -> Self {
     pub fn new(a: HashMap<String, Vec<RealEntry>>) -> Self {
         Self(a)
     }
@@ -77,7 +74,6 @@ pub fn some_deserialize(input: SerData) -> BaseData {
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
 pub struct BaseData(HashMap<String, Vec<Entry>>);
-// pub struct BaseData(HashMap<String, DateEntry>);
 
 impl BaseData {
     pub fn new(a: HashMap<String, Vec<Entry>>) -> Self {
@@ -89,7 +85,7 @@ impl BaseData {
 }
 
 #[derive(Deserialize, Serialize, Debug, PartialEq)]
-pub struct DateEntry(pub Vec<Entry>);
+pub struct DateEntry(Vec<Entry>);
 
 impl DateEntry {
     pub fn new(a: Vec<Entry>) -> Self {
@@ -102,7 +98,7 @@ impl DateEntry {
 }
 
 #[derive(Deserialize, Serialize, Debug, PartialEq, Clone)]
-pub struct Entry(pub String, pub String);
+pub struct Entry(String, String);
 
 impl Entry {
     pub fn new(a: String, b: String) -> Self {
@@ -111,6 +107,10 @@ impl Entry {
 
     pub fn go(self) -> RealEntry {
         RealEntry(self.0, self.1.parse::<DateTime<Utc>>().unwrap())
+    }
+
+    pub fn first_element(&self) -> String {
+        self.0.clone()
     }
 }
 
@@ -136,7 +136,7 @@ mod tests {
         let binding = base_data.core_data();
         let entry_one = &binding.get("2024-12-16").unwrap()[0];
 
-        assert_eq!(entry_one.0, "wow".to_string());
+        assert_eq!(entry_one.first_element(), "wow".to_string());
     }
 
     #[test]
