@@ -1,28 +1,73 @@
 use crate::serial;
 use chrono::prelude::Utc;
 use serde_json::Result;
+use std::collections::HashMap;
 use std::fs::{read_to_string, File};
 use std::io::Result as BaseResult;
 
+const FILE_LOCATION: &str = "./data_2.json";
+
 #[allow(dead_code)]
-pub fn read_json() -> Result<serial::BaseData> {
-    let data = read_to_string("./data.json").expect("file bad");
+pub fn read_json() -> Result<Option<serial::BaseData>> {
+    let data = read_to_string(FILE_LOCATION).expect("file bad");
 
-    let p: serial::BaseData = serde_json::from_str(&data)?;
+    let return_value = match data.chars().count() {
+        0 => None,
+        _ => {
+            let p: serial::BaseData = serde_json::from_str(&data)?;
+            Some(p)
+        }
+    };
 
-    let new_entry = serial::Entry::new("wham".to_string(), Utc::now().to_string());
-    let new_date_entry = vec![new_entry];
-    let mut bash_hash_map = p.core_data();
-    let _ = bash_hash_map.insert("three".to_string(), new_date_entry);
-
-    Ok(serial::BaseData::new(bash_hash_map))
+    Ok(return_value)
 }
 
 #[allow(dead_code)]
 pub fn write_json(the_data: &serial::BaseData) -> BaseResult<()> {
-    let file = File::create("./updated_data.json")?;
+    let file = File::create(FILE_LOCATION)?;
     serde_json::to_writer_pretty(file, the_data)?;
     Ok(())
+}
+
+#[allow(dead_code)]
+pub fn add_data(p: serial::SerData) -> serial::SerData {
+    let new_entry = serial::RealEntry::new("wham".to_string(), Utc::now());
+    let new_date_entry = vec![new_entry];
+    let mut bash_hash_map = p.core_data();
+    let _ = bash_hash_map.insert("three".to_string(), new_date_entry);
+
+    serial::SerData::new(bash_hash_map)
+}
+
+pub fn add_new_entry(entry_type: String, ser_data: Option<serial::SerData>) -> serial::SerData {
+    let now = Utc::now();
+    let date = now.date_naive().to_string();
+
+    let entry = serial::RealEntry::new(entry_type, now);
+
+    let new_ser = match ser_data {
+        Some(p) => {
+            let mut core = p.core_data();
+
+            match core.get_mut(&date) {
+                Some(x) => {
+                    x.push(entry);
+                    ()
+                }
+                _ => {
+                    core.insert(date, vec![entry]);
+                    ()
+                }
+            }
+            serial::SerData::new(core)
+        }
+        None => {
+            let mut h = HashMap::new();
+            h.insert(date, vec![entry]);
+            serial::SerData::new(h)
+        }
+    };
+    new_ser
 }
 
 #[cfg(test)]

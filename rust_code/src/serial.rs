@@ -84,19 +84,6 @@ impl BaseData {
     }
 }
 
-#[derive(Deserialize, Serialize, Debug, PartialEq)]
-pub struct DateEntry(Vec<Entry>);
-
-impl DateEntry {
-    pub fn new(a: Vec<Entry>) -> Self {
-        Self(a)
-    }
-
-    pub fn core_data(self) -> Vec<Entry> {
-        self.0
-    }
-}
-
 #[derive(Deserialize, Serialize, Debug, PartialEq, Clone)]
 pub struct Entry(String, String);
 
