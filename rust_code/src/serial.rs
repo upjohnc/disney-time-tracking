@@ -17,21 +17,6 @@ impl SerData {
 }
 
 #[derive(Debug, PartialEq)]
-pub struct RealDate(Vec<RealEntry>);
-
-impl RealDate {
-    pub fn core_data(self) -> Vec<RealEntry> {
-        self.0
-    }
-}
-
-impl RealDate {
-    pub fn new(a: Vec<RealEntry>) -> Self {
-        Self(a)
-    }
-}
-
-#[derive(Debug, PartialEq)]
 pub struct RealEntry(String, DateTime<Utc>);
 
 impl RealEntry {
@@ -41,6 +26,10 @@ impl RealEntry {
 
     pub fn go(self) -> Entry {
         Entry(self.0, self.1.to_string())
+    }
+
+    pub fn give_date(&self) -> DateTime<Utc> {
+        self.1.clone()
     }
 }
 
