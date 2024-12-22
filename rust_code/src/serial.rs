@@ -78,6 +78,7 @@ impl BaseData {
 pub struct Entry(String, String);
 
 impl Entry {
+    #[allow(dead_code)]
     pub fn new(a: String, b: String) -> Self {
         Self(a, b)
     }
@@ -86,6 +87,7 @@ impl Entry {
         RealEntry(self.0, self.1.parse::<DateTime<Utc>>().unwrap())
     }
 
+    #[allow(dead_code)]
     pub fn first_element(&self) -> String {
         self.0.clone()
     }
@@ -117,7 +119,7 @@ mod tests {
 
     #[test]
     fn test_get_data() {
-        let data = read_to_string("./data.json").expect("file bad");
+        let data = read_to_string("./test_data.json").expect("file bad");
         let base_data: BaseData = serde_json::from_str(&data).unwrap();
         let binding = base_data.core_data();
         let entry_one = &binding.get("2024-12-16").unwrap()[0];

@@ -143,7 +143,7 @@ mod tests {
 
     #[test]
     fn test_get_data() {
-        let data = read_to_string("./data.json").expect("file bad");
+        let data = read_to_string("./test_data.json").expect("file bad");
         let base_data: serial::BaseData = serde_json::from_str(&data).unwrap();
         let binding = base_data.core_data();
         let entry_one = &binding.get("2024-12-16").unwrap()[0];
