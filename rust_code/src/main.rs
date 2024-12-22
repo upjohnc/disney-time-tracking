@@ -2,27 +2,19 @@ mod serial;
 mod utils;
 
 use chrono::TimeDelta;
-use utils::{add_new_entry, read_json, write_json};
+use utils::{add_new_entry, write_json};
 
 const TAB_SPACE: &str = "  ";
 
 fn new_entry(entry_type: String) {
-    let base = read_json().expect("no errors");
-    let ser = match base {
-        Some(x) => Some(serial::some_serialize(x)),
-        None => None,
-    };
+    let ser = serial::retrieve_json();
     let new_stuff = add_new_entry(entry_type, ser);
     let out = serial::some_deserialize(new_stuff);
     let _ = write_json(&out);
 }
 
 fn pair_up() {
-    let base = read_json().expect("no errors");
-    let ser = match base {
-        Some(x) => Some(serial::some_serialize(x)),
-        None => None,
-    };
+    let ser = serial::retrieve_json();
 
     let the_data = ser.unwrap().core_data();
     let mut keys: Vec<String> = the_data.clone().into_keys().collect();

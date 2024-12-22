@@ -1,3 +1,4 @@
+use crate::utils;
 use chrono::prelude::Utc;
 use chrono::DateTime;
 use serde::{Deserialize, Serialize};
@@ -88,6 +89,15 @@ impl Entry {
     pub fn first_element(&self) -> String {
         self.0.clone()
     }
+}
+
+pub fn retrieve_json() -> Option<SerData> {
+    let base = utils::read_json().expect("no errors");
+    let ser = match base {
+        Some(x) => Some(some_serialize(x)),
+        None => None,
+    };
+    ser
 }
 
 #[cfg(test)]
