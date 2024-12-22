@@ -1,10 +1,13 @@
 use crate::serial;
 use chrono::prelude::Utc;
+use chrono::TimeDelta;
 use serde_json::Result;
 use std::collections::HashMap;
 use std::env::var;
 use std::fs::{read_to_string, File};
 use std::io::Result as BaseResult;
+
+const TAB_SPACE: &str = "  ";
 
 fn get_file_location() -> String {
     format!(
@@ -13,7 +16,6 @@ fn get_file_location() -> String {
     )
 }
 
-#[allow(dead_code)]
 pub fn read_json() -> Result<Option<serial::BaseData>> {
     let data = read_to_string(get_file_location()).expect("file bad");
 
@@ -28,7 +30,6 @@ pub fn read_json() -> Result<Option<serial::BaseData>> {
     Ok(return_value)
 }
 
-#[allow(dead_code)]
 pub fn write_json(the_data: &serial::BaseData) -> BaseResult<()> {
     let file = File::create(get_file_location())?;
     serde_json::to_writer_pretty(file, the_data)?;
@@ -74,6 +75,53 @@ pub fn add_new_entry(entry_type: String, ser_data: Option<serial::SerData>) -> s
         }
     };
     new_ser
+}
+
+pub fn new_entry(entry_type: String) {
+    let ser = serial::retrieve_json();
+    let new_stuff = add_new_entry(entry_type, ser);
+    let out = serial::some_deserialize(new_stuff);
+    let _ = write_json(&out);
+}
+
+pub fn pair_up() {
+    let ser = serial::retrieve_json();
+
+    let the_data = ser.unwrap().core_data();
+    let mut keys: Vec<String> = the_data.clone().into_keys().collect();
+    keys.sort_unstable();
+
+    for k in keys {
+        let v = the_data.get(&k).unwrap();
+        let mut sum_time = vec![];
+        // print the date
+        println!("{}", k);
+        for pair in v.chunks(2) {
+            if pair.len() > 1 {
+                let td = pair[1].give_date() - pair[0].give_date();
+                sum_time.push(td);
+
+                // print the start-stop pair
+                println!(
+                    "{}{}{}:{}",
+                    TAB_SPACE,
+                    TAB_SPACE,
+                    td.num_hours(),
+                    td.num_minutes() % 60
+                )
+            }
+        }
+        let thing: TimeDelta = sum_time.iter().sum();
+        // print days total
+        println!("{}Days Total", TAB_SPACE);
+        println!(
+            "{}{}{}:{}",
+            TAB_SPACE,
+            TAB_SPACE,
+            thing.num_hours(),
+            thing.num_minutes() % 60
+        );
+    }
 }
 
 #[cfg(test)]
