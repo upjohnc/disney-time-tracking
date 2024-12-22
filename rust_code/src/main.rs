@@ -15,8 +15,14 @@ fn main() {
 
     match args.action.as_str() {
         "calculate" => utils::pair_up(),
-        "start" => utils::new_entry("start".to_string()),
-        "stop" => utils::new_entry("stop".to_string()),
+        "start" => {
+            utils::new_entry("start".to_string());
+            println!("Start time added")
+        }
+        "stop" => {
+            utils::new_entry("stop".to_string());
+            println!("Stop time added")
+        }
         _ => println!("Need to choose: calculate, start, or stop"),
     }
 }
