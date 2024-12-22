@@ -16,7 +16,7 @@ impl SerData {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct RealEntry(String, DateTime<Utc>);
 
 impl RealEntry {
