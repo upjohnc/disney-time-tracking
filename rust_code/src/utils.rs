@@ -2,14 +2,20 @@ use crate::serial;
 use chrono::prelude::Utc;
 use serde_json::Result;
 use std::collections::HashMap;
+use std::env::var;
 use std::fs::{read_to_string, File};
 use std::io::Result as BaseResult;
 
-const FILE_LOCATION: &str = "./data_2.json";
+fn get_file_location() -> String {
+    format!(
+        "{}/projects/disney-time-tracking/rust_code/data.json",
+        var("HOME").unwrap()
+    )
+}
 
 #[allow(dead_code)]
 pub fn read_json() -> Result<Option<serial::BaseData>> {
-    let data = read_to_string(FILE_LOCATION).expect("file bad");
+    let data = read_to_string(get_file_location()).expect("file bad");
 
     let return_value = match data.chars().count() {
         0 => None,
@@ -24,7 +30,7 @@ pub fn read_json() -> Result<Option<serial::BaseData>> {
 
 #[allow(dead_code)]
 pub fn write_json(the_data: &serial::BaseData) -> BaseResult<()> {
-    let file = File::create(FILE_LOCATION)?;
+    let file = File::create(get_file_location())?;
     serde_json::to_writer_pretty(file, the_data)?;
     Ok(())
 }

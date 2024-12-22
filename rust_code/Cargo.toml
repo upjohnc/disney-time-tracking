@@ -1,5 +1,5 @@
 [package]
-name = "rust_code"
+name = "disney_tracking"
 version = "0.1.0"
 edition = "2021"
 

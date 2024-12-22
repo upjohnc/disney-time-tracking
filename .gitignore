@@ -8,6 +8,7 @@ node_modules/
 data/
 
 rust_code/target/
+rust_code/disney_tracking
 
 # run deck ignore
 requirements.txt
