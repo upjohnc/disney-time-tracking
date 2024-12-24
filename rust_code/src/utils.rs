@@ -16,13 +16,13 @@ fn get_file_location() -> String {
     )
 }
 
-pub fn read_json() -> Result<Option<serial::StringRootData>> {
+pub fn read_json() -> Result<Option<serial::SerData>> {
     let data = read_to_string(get_file_location()).expect("file bad");
 
     let return_value = match data.chars().count() {
         0 => None,
         _ => {
-            let p: serial::StringRootData = serde_json::from_str(&data)?;
+            let p: serial::SerData = serde_json::from_str(&data)?;
             Some(p)
         }
     };
@@ -30,7 +30,7 @@ pub fn read_json() -> Result<Option<serial::StringRootData>> {
     Ok(return_value)
 }
 
-pub fn write_json(the_data: &serial::StringRootData) -> BaseResult<()> {
+pub fn write_json(the_data: &serial::SerData) -> BaseResult<()> {
     let file = File::create(get_file_location())?;
     serde_json::to_writer_pretty(file, the_data)?;
     Ok(())
@@ -70,8 +70,7 @@ pub fn add_new_entry(entry_type: String, ser_data: Option<serial::SerData>) -> s
 pub fn new_entry(entry_type: String) {
     let ser = serial::retrieve_json();
     let new_stuff = add_new_entry(entry_type, ser);
-    let out = serial::do_deserialize(new_stuff);
-    let _ = write_json(&out);
+    let _ = write_json(&new_stuff);
 }
 
 pub fn calculate_time() {
@@ -111,49 +110,5 @@ pub fn calculate_time() {
             sum_day_time.num_hours(),
             sum_day_time.num_minutes() % 60
         );
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::serial::SerEntry;
-    use chrono::DateTime;
-    use std::fs::read_to_string;
-
-    #[test]
-    fn test_ser_deser() {
-        let data = read_to_string("./data.json").expect("file bad");
-        let p: serial::StringRootData = serde_json::from_str(&data).unwrap();
-        let p_2: serial::StringRootData = serde_json::from_str(&data).unwrap();
-        let result_1 = serial::do_serialize(p);
-        let result_2 = serial::do_deserialize(result_1);
-        assert_eq!(p_2, result_2);
-    }
-
-    #[test]
-    fn test_get_data() {
-        let data = read_to_string("./test_data.json").expect("file bad");
-        let base_data: serial::StringRootData = serde_json::from_str(&data).unwrap();
-        let binding = base_data.core_data();
-        let entry_one = &binding.get("2024-12-16").unwrap()[0];
-
-        assert_eq!(entry_one.first_element(), "wow".to_string());
-    }
-
-    #[test]
-    fn test_entry() {
-        let entry = serial::StringEntry::new(
-            "wow".to_string(),
-            "2024-11-28 00:43:58.512246 UTC".to_string(),
-        );
-        let expected = SerEntry::new(
-            "wow".to_string(),
-            "2024-11-28 00:43:58.512246 UTC"
-                .parse::<DateTime<Utc>>()
-                .unwrap(),
-        );
-        let result = entry.convert_to_datetime();
-        assert_eq!(result, expected);
     }
 }
