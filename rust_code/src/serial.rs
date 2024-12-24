@@ -5,28 +5,28 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 #[derive(Debug, PartialEq)]
-pub struct SerData(HashMap<String, Vec<RealEntry>>);
+pub struct SerData(HashMap<String, Vec<SerEntry>>);
 
 impl SerData {
-    pub fn core_data(self) -> HashMap<String, Vec<RealEntry>> {
+    pub fn core_data(self) -> HashMap<String, Vec<SerEntry>> {
         self.0
     }
 
-    pub fn new(a: HashMap<String, Vec<RealEntry>>) -> Self {
+    pub fn new(a: HashMap<String, Vec<SerEntry>>) -> Self {
         Self(a)
     }
 }
 
 #[derive(Debug, PartialEq, Clone)]
-pub struct RealEntry(String, DateTime<Utc>);
+pub struct SerEntry(String, DateTime<Utc>);
 
-impl RealEntry {
+impl SerEntry {
     pub fn new(a: String, b: DateTime<Utc>) -> Self {
         Self(a, b)
     }
 
-    pub fn go(self) -> Entry {
-        Entry(self.0, self.1.to_string())
+    pub fn convert_to_string(self) -> StringEntry {
+        StringEntry(self.0, self.1.to_string())
     }
 
     pub fn give_date(&self) -> DateTime<Utc> {
@@ -34,57 +34,55 @@ impl RealEntry {
     }
 }
 
-pub fn some_serialize(input: BaseData) -> SerData {
+pub fn do_serialize(input: StringRootData) -> SerData {
     let mut ser_data = HashMap::new();
     let source_data = input.core_data();
     for (k, v) in source_data.into_iter() {
         let mut real_date = vec![];
         for e in v {
-            real_date.push(e.go());
+            real_date.push(e.convert_to_datetime());
         }
-        // ser_data.insert(k, RealDate::new(real_date));
         ser_data.insert(k, real_date);
     }
     SerData::new(ser_data)
 }
 
-pub fn some_deserialize(input: SerData) -> BaseData {
+pub fn do_deserialize(input: SerData) -> StringRootData {
     let mut base_data = HashMap::new();
     let source_data = input.core_data();
     for (k, v) in source_data.into_iter() {
         let mut date_data = vec![];
-        // for e in v.core_data() {
         for e in v {
-            date_data.push(e.go());
+            date_data.push(e.convert_to_string());
         }
         base_data.insert(k, date_data);
     }
-    BaseData::new(base_data)
+    StringRootData::new(base_data)
 }
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
-pub struct BaseData(HashMap<String, Vec<Entry>>);
+pub struct StringRootData(HashMap<String, Vec<StringEntry>>);
 
-impl BaseData {
-    pub fn new(a: HashMap<String, Vec<Entry>>) -> Self {
+impl StringRootData {
+    pub fn new(a: HashMap<String, Vec<StringEntry>>) -> Self {
         Self(a)
     }
-    pub fn core_data(self) -> HashMap<String, Vec<Entry>> {
+    pub fn core_data(self) -> HashMap<String, Vec<StringEntry>> {
         self.0
     }
 }
 
 #[derive(Deserialize, Serialize, Debug, PartialEq, Clone)]
-pub struct Entry(String, String);
+pub struct StringEntry(String, String);
 
-impl Entry {
+impl StringEntry {
     #[allow(dead_code)]
     pub fn new(a: String, b: String) -> Self {
         Self(a, b)
     }
 
-    pub fn go(self) -> RealEntry {
-        RealEntry(self.0, self.1.parse::<DateTime<Utc>>().unwrap())
+    pub fn convert_to_datetime(self) -> SerEntry {
+        SerEntry(self.0, self.1.parse::<DateTime<Utc>>().unwrap())
     }
 
     #[allow(dead_code)]
@@ -96,7 +94,7 @@ impl Entry {
 pub fn retrieve_json() -> Option<SerData> {
     let base = utils::read_json().expect("no errors");
     let ser = match base {
-        Some(x) => Some(some_serialize(x)),
+        Some(x) => Some(do_serialize(x)),
         None => None,
     };
     ser
@@ -110,17 +108,17 @@ mod tests {
     #[test]
     fn test_ser_deser() {
         let data = read_to_string("./data.json").expect("file bad");
-        let p: BaseData = serde_json::from_str(&data).unwrap();
-        let p_2: BaseData = serde_json::from_str(&data).unwrap();
-        let result_1 = some_serialize(p);
-        let result_2 = some_deserialize(result_1);
+        let p: StringRootData = serde_json::from_str(&data).unwrap();
+        let p_2: StringRootData = serde_json::from_str(&data).unwrap();
+        let result_1 = do_serialize(p);
+        let result_2 = do_deserialize(result_1);
         assert_eq!(p_2, result_2);
     }
 
     #[test]
     fn test_get_data() {
         let data = read_to_string("./test_data.json").expect("file bad");
-        let base_data: BaseData = serde_json::from_str(&data).unwrap();
+        let base_data: StringRootData = serde_json::from_str(&data).unwrap();
         let binding = base_data.core_data();
         let entry_one = &binding.get("2024-12-16").unwrap()[0];
 
@@ -129,17 +127,17 @@ mod tests {
 
     #[test]
     fn test_entry() {
-        let entry = Entry::new(
+        let entry = StringEntry::new(
             "wow".to_string(),
             "2024-11-28 00:43:58.512246 UTC".to_string(),
         );
-        let expected = RealEntry::new(
+        let expected = SerEntry::new(
             "wow".to_string(),
             "2024-11-28 00:43:58.512246 UTC"
                 .parse::<DateTime<Utc>>()
                 .unwrap(),
         );
-        let result = entry.go();
+        let result = entry.convert_to_datetime();
         assert_eq!(result, expected);
     }
 }

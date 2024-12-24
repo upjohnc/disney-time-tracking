@@ -14,7 +14,7 @@ fn main() {
     let args = Args::parse();
 
     match args.action.as_str() {
-        "calculate" => utils::pair_up(),
+        "calculate" => utils::calculate_time(),
         "start" => {
             utils::new_entry("start".to_string());
             println!("Start time added")
