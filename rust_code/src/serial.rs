@@ -1,4 +1,3 @@
-use crate::utils;
 use chrono::prelude::Utc;
 use chrono::DateTime;
 use serde::{Deserialize, Serialize};
@@ -27,10 +26,6 @@ impl SerEntry {
     pub fn give_date(&self) -> DateTime<Utc> {
         self.1.clone()
     }
-}
-
-pub fn retrieve_json() -> Option<SerData> {
-    utils::read_json().expect("no errors")
 }
 
 #[cfg(test)]

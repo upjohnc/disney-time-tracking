@@ -1,4 +1,4 @@
-use crate::serial;
+use crate::serial::{SerData, SerEntry};
 use chrono::prelude::Utc;
 use chrono::TimeDelta;
 use serde_json::Result;
@@ -16,13 +16,17 @@ fn get_file_location() -> String {
     )
 }
 
-pub fn read_json() -> Result<Option<serial::SerData>> {
-    let data = read_to_string(get_file_location()).expect("file bad");
+pub fn retrieve_json() -> Option<SerData> {
+    read_json(get_file_location()).expect("no errors")
+}
+
+pub fn read_json(file_path: String) -> Result<Option<SerData>> {
+    let data = read_to_string(file_path).expect("file bad");
 
     let return_value = match data.chars().count() {
         0 => None,
         _ => {
-            let p: serial::SerData = serde_json::from_str(&data)?;
+            let p: SerData = serde_json::from_str(&data)?;
             Some(p)
         }
     };
@@ -30,17 +34,17 @@ pub fn read_json() -> Result<Option<serial::SerData>> {
     Ok(return_value)
 }
 
-pub fn write_json(the_data: &serial::SerData) -> BaseResult<()> {
+pub fn write_json(the_data: &SerData) -> BaseResult<()> {
     let file = File::create(get_file_location())?;
     serde_json::to_writer_pretty(file, the_data)?;
     Ok(())
 }
 
-pub fn add_new_entry(entry_type: String, ser_data: Option<serial::SerData>) -> serial::SerData {
+pub fn add_new_entry(entry_type: String, ser_data: Option<SerData>) -> SerData {
     let now = Utc::now();
     let date = now.date_naive().to_string();
 
-    let entry = serial::SerEntry::new(entry_type, now);
+    let entry = SerEntry::new(entry_type, now);
 
     let new_ser = match ser_data {
         Some(p) => {
@@ -56,29 +60,29 @@ pub fn add_new_entry(entry_type: String, ser_data: Option<serial::SerData>) -> s
                     ()
                 }
             }
-            serial::SerData::new(core)
+            SerData::new(core)
         }
         None => {
             let mut h = HashMap::new();
             h.insert(date, vec![entry]);
-            serial::SerData::new(h)
+            SerData::new(h)
         }
     };
     new_ser
 }
 
 pub fn new_entry(entry_type: String) {
-    let ser = serial::retrieve_json();
+    let ser = retrieve_json();
     let new_stuff = add_new_entry(entry_type, ser);
     let _ = write_json(&new_stuff);
 }
 
-pub fn calculate_time() {
-    let ser = serial::retrieve_json();
-
-    let root_data = ser.unwrap().core_data();
+pub fn calculate_time(ser: SerData) -> HashMap<String, TimeDelta> {
+    let root_data = ser.core_data();
     let mut keys: Vec<String> = root_data.clone().into_keys().collect();
     keys.sort_unstable();
+
+    let mut result = HashMap::new();
 
     for k in keys {
         let v = root_data.get(&k).unwrap();
@@ -110,5 +114,26 @@ pub fn calculate_time() {
             sum_day_time.num_hours(),
             sum_day_time.num_minutes() % 60
         );
+        result.insert(k, sum_day_time);
+    }
+    result
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_calculate() {
+        let expected = HashMap::from([
+            ("2024-12-19".to_string(), TimeDelta::new(1980, 0).unwrap()),
+            ("2024-10-28".to_string(), TimeDelta::new(0, 0).unwrap()),
+            ("2024-12-17".to_string(), TimeDelta::new(5640, 0).unwrap()),
+        ]);
+        let data = read_json("./test_data.json".to_string())
+            .expect("File ok")
+            .unwrap();
+        let result = calculate_time(data);
+        assert_eq!(expected, result);
     }
 }

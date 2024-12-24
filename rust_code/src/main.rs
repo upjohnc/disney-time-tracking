@@ -14,7 +14,11 @@ fn main() {
     let args = Args::parse();
 
     match args.action.as_str() {
-        "calculate" => utils::calculate_time(),
+        "calculate" => {
+            let data = utils::retrieve_json().unwrap();
+            utils::calculate_time(data);
+            ()
+        }
         "start" => {
             utils::new_entry("start".to_string());
             println!("Start time added")
