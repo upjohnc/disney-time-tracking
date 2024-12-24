@@ -11,7 +11,7 @@ const TAB_SPACE: &str = "  ";
 
 fn get_file_location() -> String {
     format!(
-        "{}/projects/disney-time-tracking/rust_code/data.json",
+        "{}/projects/personal/disney-time-tracking/rust_code/data.json",
         var("HOME").unwrap()
     )
 }
