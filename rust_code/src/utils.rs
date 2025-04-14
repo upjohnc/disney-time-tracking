@@ -96,7 +96,7 @@ pub fn calculate_time(ser: SerData) -> HashMap<String, TimeDelta> {
 
                 // print the start-stop pair
                 println!(
-                    "{}{}{}:{}",
+                    "{}{}{}:{:0>2}",
                     TAB_SPACE,
                     TAB_SPACE,
                     td.num_hours(),
@@ -108,7 +108,7 @@ pub fn calculate_time(ser: SerData) -> HashMap<String, TimeDelta> {
         // print days total
         println!("{}Days Total", TAB_SPACE);
         println!(
-            "{}{}{}:{}",
+            "{}{}{}:{:0>2}",
             TAB_SPACE,
             TAB_SPACE,
             sum_day_time.num_hours(),
